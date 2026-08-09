@@ -1,48 +1,64 @@
-# ポイ活ランチャー
+# Y!mobile マイル巡回
 
-Y!mobileパケットマイレージ等の「毎日いくつもページを開く」を、iPhoneのホーム画面から順番に処理するための小さなPWAです。
+Y!mobileパケットマイレージ対象の14サービスを、iPhoneのSafari＋ショートカットで順番に巡回し、巡回前後の実マイル差分まで確認するPWAです。
 
-## 使い方
+## 毎日の使い方
 
-1. GitHub Pagesで公開したURLをiPhoneのSafariで開く。
-2. Safariの共有ボタンから「ホーム画面に追加」を選ぶ。
-3. 「ポイ活」アイコンを開く。
-4. 上部の「次を開く」を押す。対象サービスを開いた時点で、その端末では「済」として記録される。
-5. ポイ活ランチャーへ戻り、同じ「次を開く」を繰り返す。
-6. 誤って済にした項目は「戻す」で解除できる。
+1. iPhoneのSafariで公開URLを開き、共有 → **ホーム画面に追加**。アイコンからもSafariで開く設計です。
+2. PWAの「Y!mobileで現在マイルを確認」から現在値を見て、**開始マイル**を入力。
+3. 「14件をショートカットで巡回」を押す。
+4. iPhoneショートカット `ポイ活巡回` が14URLをSafariで順番に開く。
+5. 完了後、Shortcutsの **x-callback** でPWAへ戻る。
+6. 「Y!mobileで現在マイルを再確認」から現在値を見て、**終了マイル**を入力。
+7. PWAが開始値との差分を表示する。
 
-完了履歴は `localStorage` に保存されます。そのため夫婦で同じURLを使っても、それぞれのiPhoneで完了状態は独立します。
+> Safariで使う理由: iOSのstandaloneホーム画面Web AppはSafariとCookie・ストレージが分離されます。今回はYahoo!のログイン状態と、ショートカット完了後のx-callbackを同じSafari環境でつなぐため、manifestは `display: browser` にしています。
 
-## 初期サービス
+ページを開いたことは `訪問済` として管理します。ページ訪問だけで `マイル獲得済` とは判定しません。実際の付与はY!mobile側の残高で確認します。
 
-`src/services.js` にY!mobileのパケットマイレージ対象サービスを初期登録しています。Y!mobileの対象サービスや条件は変更される場合があるため、公式ページを基準に必要に応じて更新してください。
+## 初回だけ：iPhoneショートカットを作る
 
-サービス例:
+PWA内の「ショートカットを作成」からショートカットエディタを開き、名前を **ポイ活巡回** にします。
+
+アクションは次の順です。
+
+1. `ショートカットの入力` を受け取る。
+2. `テキストを分割` で **改行** ごとに分割する。
+3. `各項目を繰り返す`。
+4. 繰り返し内で `URL` に `繰り返し項目` を入れる。
+5. `URLを開く`。
+6. `待機` を **3秒**。
+7. 繰り返し終了。
+
+対象URLはショートカットに固定しません。PWAが `shortcuts://x-callback-url/run-shortcut` で、その日の対象URLを改行区切りテキストとして渡します。対象サービスが変わった場合は `src/services.js` の更新だけで対応できます。
+
+## データの扱い
+
+- 完了履歴と入力したマイル値は `localStorage` に保存。
+- 夫婦で同じURLを使っても、それぞれのiPhoneで状態は独立。
+- Yahoo!/Y!mobileのID、パスワード、Cookie、トークンは保存しない。
+- ログイン処理やページ内ボタンの自動クリックは行わない。
+
+## サービス設定
+
+`src/services.js` のうち `earnsMiles: true` の14件が一括巡回対象です。
 
 ```js
 {
   id: 'yahoo-news',
   name: 'Yahoo!ニュース',
   url: 'https://news.yahoo.co.jp/',
+  earnsMiles: true,
   frequency: 'daily',
   enabled: true
 }
 ```
 
-頻度は次の4種類です。
-
-- `daily`: 毎日
-- `weekly`: 毎週。`weekday: 0`（日曜）〜 `6`（土曜）を追加
-- `monthly`: 毎月。`day: 1`〜`31`を追加
-- `once`: 一度完了するまで
-
-`enabled: false` にすると一覧から外れます。初期状態ではYahoo!ズバトクを無効にしています。
+Y!mobileメニューは残高確認用なので `earnsMiles: false` です。
 
 ## GitHub Pages
 
-このリポジトリには `.github/workflows/pages.yml` を含めています。リポジトリのSettings → PagesでSourceを **GitHub Actions** に設定すると、`main` へのpush時に静的サイトを公開できます。
-
-公開サイトには認証情報を置きません。ログイン、くじ、チェックイン等は各サービス側で手動実行します。このアプリが行うのは対象ページを開くところまでです。
+`.github/workflows/pages.yml` で `main` へのpush時にGitHub Pagesへデプロイします。
 
 ## ローカル確認
 
@@ -51,4 +67,4 @@ npm test
 python3 -m http.server 8000
 ```
 
-ブラウザで `http://localhost:8000/` を開きます。Service Workerは安全なコンテキストでのみ登録されます。
+ブラウザで `http://localhost:8000/` を開きます。

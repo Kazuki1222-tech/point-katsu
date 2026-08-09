@@ -1,4 +1,4 @@
-const CACHE = 'point-katsu-v1';
+const CACHE = 'point-katsu-v2';
 const APP_SHELL = [
   './',
   './index.html',
@@ -8,6 +8,8 @@ const APP_SHELL = [
   './src/services.js',
   './src/schedule.js',
   './src/storage.js',
+  './src/shortcut.js',
+  './src/session.js',
   './assets/icon-192.png',
   './assets/icon-512.png',
   './assets/apple-touch-icon.png'
