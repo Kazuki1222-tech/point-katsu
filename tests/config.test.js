@@ -17,3 +17,11 @@ test('default list contains Y!mobile packet mileage core destinations', () => {
     assert.ok(names.includes(name), `missing ${name}`);
   }
 });
+
+test('exactly 14 enabled services are marked as daily mileage earners', () => {
+  const earners = services.filter((item) => item.enabled && item.earnsMiles);
+  assert.equal(earners.length, 14);
+  assert.ok(earners.every((item) => item.frequency === 'daily'));
+  const balance = services.find((item) => item.id === 'ymobile-menu');
+  assert.equal(balance.earnsMiles, false);
+});

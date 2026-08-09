@@ -11,7 +11,7 @@ test('Pages workflow deploys static repository on main push', async () => {
 
 test('README explains iPhone install and service configuration', async () => {
   const readme = await readFile(new URL('../README.md', import.meta.url), 'utf8');
-  for (const marker of ['ホーム画面に追加', 'src/services.js', 'localStorage', 'GitHub Pages']) {
+  for (const marker of ['ホーム画面に追加', 'src/services.js', 'localStorage', 'GitHub Pages', 'ポイ活巡回', '開始マイル', '終了マイル', 'x-callback']) {
     assert.ok(readme.includes(marker), `missing ${marker}`);
   }
 });
