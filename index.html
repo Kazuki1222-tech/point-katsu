@@ -3,11 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#111827">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="ポイ活">
-  <title>ポイ活ランチャー</title>
+  <meta name="theme-color" content="#0b1220">
+  <meta name="apple-mobile-web-app-title" content="マイル巡回">
+  <title>Y!mobile マイル巡回</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png">
   <link rel="stylesheet" href="./styles.css">
@@ -18,33 +16,95 @@
       <p class="eyebrow" id="today-date">今日</p>
       <div class="hero-row">
         <div>
-          <h1>ポイ活</h1>
-          <p class="summary"><strong id="remaining-count">0</strong> 件残り</p>
+          <h1>Y!mobile マイル</h1>
+          <p class="hero-copy">実マイル → 14件巡回 → 実マイル確認</p>
         </div>
-        <span class="device-note">この端末だけに保存</span>
+        <span class="device-note">端末内保存</span>
       </div>
     </header>
 
-    <section class="next-action" aria-label="次のポイ活">
-      <button id="next-button" class="primary-button" type="button">次を開く</button>
-      <p id="next-name" class="next-name">読み込み中…</p>
-    </section>
-
-    <section class="section-block">
-      <div class="section-heading">
-        <h2>今日やること</h2>
-        <span id="done-count" class="muted"></span>
+    <section class="balance-card" aria-label="現在のマイル">
+      <div>
+        <p id="current-mile-caption" class="metric-label">現在マイル</p>
+        <p class="metric"><strong id="current-mile-value">—</strong><span> mile</span></p>
       </div>
-      <div id="today-list" class="service-list" aria-live="polite"></div>
+      <div class="forecast">
+        <span>今日の見込</span>
+        <strong>+14 mile</strong>
+      </div>
     </section>
 
-    <details class="other-section">
-      <summary>今日は対象外</summary>
-      <div id="other-list" class="service-list compact"></div>
-    </details>
+    <section class="step-card" id="step-start">
+      <div class="step-heading">
+        <span class="step-number">1</span>
+        <div>
+          <h2>開始マイルを確認</h2>
+          <p>巡回前の残高を記録します。</p>
+        </div>
+      </div>
+      <button id="open-mileage-start" class="secondary-button" type="button">Y!mobileで現在マイルを確認</button>
+      <div class="mile-entry">
+        <input id="start-mile-input" type="number" min="0" step="1" inputmode="numeric" placeholder="例 126" aria-label="開始マイル">
+        <span>mile</span>
+        <button id="record-start-button" class="compact-button" type="button">記録</button>
+      </div>
+      <p id="start-note" class="microcopy">Safari側でY!mobile/Yahoo!にログインした状態で確認してください。</p>
+    </section>
+
+    <section class="step-card" id="step-visit">
+      <div class="step-heading">
+        <span class="step-number">2</span>
+        <div>
+          <h2>14サービスを巡回</h2>
+          <p><strong id="visit-progress">0 / 14</strong> 訪問済 · 見込 +14 mile</p>
+        </div>
+      </div>
+      <button id="run-shortcut-button" class="primary-button" type="button">14件をショートカットで巡回</button>
+      <p id="shortcut-status" class="microcopy">約45秒。Safariで対象ページを順番に開き、完了後ここへ戻ります。</p>
+
+      <details id="shortcut-setup" class="setup-panel">
+        <summary>初回だけ：ショートカット設定</summary>
+        <div class="setup-body">
+          <a class="secondary-link" href="shortcuts://create-shortcut">ショートカットを作成</a>
+          <ol>
+            <li>名前を <strong>ポイ活巡回</strong> にする。</li>
+            <li>「ショートカットの入力」を「テキストを分割」で <strong>改行</strong> ごとに分ける。</li>
+            <li>「各項目を繰り返す」を追加する。</li>
+            <li>繰り返し内で「URL（繰り返し項目）」→「URLを開く」→「待機 <strong>3秒</strong>」を実行する。</li>
+            <li>繰り返し終了でショートカットも終了。PWAへ自動で戻ります。</li>
+          </ol>
+          <p>URL一覧はこのPWAから毎回渡すので、ショートカット側に14個のURLを保存する必要はありません。</p>
+        </div>
+      </details>
+
+      <details class="manual-panel">
+        <summary>ショートカットが動かない場合：1件ずつ開く</summary>
+        <div id="manual-list" class="service-list" aria-live="polite"></div>
+      </details>
+    </section>
+
+    <section class="step-card" id="step-end">
+      <div class="step-heading">
+        <span class="step-number">3</span>
+        <div>
+          <h2>終了マイルを確認</h2>
+          <p>巡回後の実残高との差分を見ます。</p>
+        </div>
+      </div>
+      <button id="open-mileage-end" class="secondary-button" type="button">Y!mobileで現在マイルを再確認</button>
+      <div class="mile-entry">
+        <input id="end-mile-input" type="number" min="0" step="1" inputmode="numeric" placeholder="例 140" aria-label="終了マイル">
+        <span>mile</span>
+        <button id="record-end-button" class="compact-button" type="button">記録</button>
+      </div>
+      <div id="result-panel" class="result-panel" aria-live="polite">
+        <strong id="result-diff">まだ未確認</strong>
+        <p id="result-note">実際の付与はY!mobileの残高で確認します。反映に時間がかかる場合は後で再確認してください。</p>
+      </div>
+    </section>
 
     <footer>
-      <p>「開く」を押すと、この端末では実施済みとして記録します。操作できなかった場合は「戻す」で解除できます。</p>
+      <p>このPWAは訪問状況と手入力した残高だけを保存します。Yahoo!/Y!mobileのID・パスワード・Cookieは保存しません。</p>
     </footer>
   </main>
 
